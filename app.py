@@ -9,10 +9,6 @@ st.set_page_config(page_title="Prediksi Churn Telco", layout="centered")
 st.title("📊 Prediksi Churn Pelanggan Telco")
 st.write("Silakan isi seluruh data pelanggan berikut:")
 
-# =========================
-# INPUT DATA PELANGGAN
-# =========================
-
 gender = st.selectbox("Gender", ["Male", "Female"])
 SeniorCitizen = st.selectbox("Senior Citizen", [0, 1])
 Partner = st.selectbox("Partner", ["Yes", "No"])
@@ -46,10 +42,6 @@ PaymentMethod = st.selectbox(
 MonthlyCharges = st.number_input("Monthly Charges", min_value=0.0)
 TotalCharges = st.number_input("Total Charges", min_value=0.0)
 
-# =========================
-# DATAFRAME INPUT
-# =========================
-
 input_data = pd.DataFrame({
     'gender': [gender],
     'SeniorCitizen': [SeniorCitizen],
@@ -71,10 +63,6 @@ input_data = pd.DataFrame({
     'MonthlyCharges': [MonthlyCharges],
     'TotalCharges': [TotalCharges]
 })
-
-# =========================
-# PREDIKSI
-# =========================
 
 if st.button("🔍 Prediksi Churn"):
     prediction = model.predict(input_data)
