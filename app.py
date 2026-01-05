@@ -2,33 +2,73 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load model
+# Load trained model
 model = joblib.load("best_model.pkl")
 
-st.set_page_config(page_title="Prediksi Churn Telco", layout="centered")
-st.title("📊 Prediksi Churn Pelanggan Telco")
-st.write("Silakan isi seluruh data pelanggan berikut:")
+st.set_page_config(
+    page_title="Telco Customer Churn Prediction",
+    layout="centered"
+)
 
+st.title("📊 Telco Customer Churn Prediction")
+st.write("Please fill in the following customer information:")
+
+# === Customer Demographics ===
 gender = st.selectbox("Gender", ["Male", "Female"])
 SeniorCitizen = st.selectbox("Senior Citizen", [0, 1])
-Partner = st.selectbox("Partner", ["Yes", "No"])
-Dependents = st.selectbox("Dependents", ["Yes", "No"])
+Partner = st.selectbox("Has Partner", ["Yes", "No"])
+Dependents = st.selectbox("Has Dependents", ["Yes", "No"])
 
-tenure = st.number_input("Tenure (bulan)", min_value=0, step=1)
+tenure = st.number_input("Tenure (Months)", min_value=0, step=1)
 
+# === Services ===
 PhoneService = st.selectbox("Phone Service", ["Yes", "No"])
-MultipleLines = st.selectbox("Multiple Lines", ["Yes", "No", "No phone service"])
+MultipleLines = st.selectbox(
+    "Multiple Lines",
+    ["Yes", "No", "No phone service"]
+)
 
-InternetService = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-OnlineSecurity = st.selectbox("Online Security", ["Yes", "No", "No internet service"])
-OnlineBackup = st.selectbox("Online Backup", ["Yes", "No", "No internet service"])
-DeviceProtection = st.selectbox("Device Protection", ["Yes", "No", "No internet service"])
-TechSupport = st.selectbox("Tech Support", ["Yes", "No", "No internet service"])
-StreamingTV = st.selectbox("Streaming TV", ["Yes", "No", "No internet service"])
-StreamingMovies = st.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
+InternetService = st.selectbox(
+    "Internet Service",
+    ["DSL", "Fiber optic", "No"]
+)
 
-Contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-PaperlessBilling = st.selectbox("Paperless Billing", ["Yes", "No"])
+OnlineSecurity = st.selectbox(
+    "Online Security",
+    ["Yes", "No", "No internet service"]
+)
+OnlineBackup = st.selectbox(
+    "Online Backup",
+    ["Yes", "No", "No internet service"]
+)
+DeviceProtection = st.selectbox(
+    "Device Protection",
+    ["Yes", "No", "No internet service"]
+)
+TechSupport = st.selectbox(
+    "Tech Support",
+    ["Yes", "No", "No internet service"]
+)
+StreamingTV = st.selectbox(
+    "Streaming TV",
+    ["Yes", "No", "No internet service"]
+)
+StreamingMovies = st.selectbox(
+    "Streaming Movies",
+    ["Yes", "No", "No internet service"]
+)
+
+# === Contract & Billing ===
+Contract = st.selectbox(
+    "Contract Type",
+    ["Month-to-month", "One year", "Two year"]
+)
+
+PaperlessBilling = st.selectbox(
+    "Paperless Billing",
+    ["Yes", "No"]
+)
+
 PaymentMethod = st.selectbox(
     "Payment Method",
     [
@@ -39,9 +79,17 @@ PaymentMethod = st.selectbox(
     ]
 )
 
-MonthlyCharges = st.number_input("Monthly Charges", min_value=0.0)
-TotalCharges = st.number_input("Total Charges", min_value=0.0)
+MonthlyCharges = st.number_input(
+    "Monthly Charges",
+    min_value=0.0
+)
 
+TotalCharges = st.number_input(
+    "Total Charges",
+    min_value=0.0
+)
+
+# === Input DataFrame ===
 input_data = pd.DataFrame({
     'gender': [gender],
     'SeniorCitizen': [SeniorCitizen],
@@ -64,44 +112,45 @@ input_data = pd.DataFrame({
     'TotalCharges': [TotalCharges]
 })
 
-if st.button("🔍 Prediksi Churn"):
+# === Prediction ===
+if st.button("🔍 Predict Churn"):
     proba = model.predict_proba(input_data)
-    churn_prob = proba[0][1] * 100  # Probabilitas churn (%)
+    churn_prob = proba[0][1] * 100  # Churn probability (%)
 
-    # Threshold klasifikasi
     if churn_prob >= 50:
         prediction = "CHURN"
-        risiko = "RISIKO TINGGI"
+        risk_level = "HIGH RISK"
     else:
-        prediction = "TIDAK CHURN"
-        risiko = "RISIKO RENDAH"
+        prediction = "NO CHURN"
+        risk_level = "LOW RISK"
 
     st.markdown("---")
-    st.subheader("📊 Hasil & Ringkasan")
+    st.subheader("📊 Prediction Summary")
 
     col1, col2, col3 = st.columns(3)
 
     col1.metric(
-        label="📈 Probabilitas Churn",
+        label="📈 Churn Probability",
         value=f"{churn_prob:.2f}%"
     )
 
     col2.metric(
-        label="⚠️ Tingkat Risiko",
-        value=risiko
+        label="⚠️ Risk Level",
+        value=risk_level
     )
 
     col3.metric(
-        label="🔮 Prediksi",
+        label="🔮 Prediction",
         value=prediction
     )
 
     st.progress(churn_prob / 100)
 
     if prediction == "CHURN":
-        st.error("❌ Pelanggan diprediksi **CHURN**")
+        st.error("❌ The customer is predicted to **CHURN**.")
     else:
-        st.success("✅ Pelanggan diprediksi **TIDAK CHURN**")
+        st.success("✅ The customer is predicted to **NOT CHURN**.")
 
-    st.caption("📌 Catatan: Pelanggan dikategorikan churn jika probabilitas ≥ 50%.")
-
+    st.caption(
+        "ℹ️ Note: Customers are classified as churn if the churn probability is ≥ 50%."
+    )
