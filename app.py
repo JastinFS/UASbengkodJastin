@@ -65,10 +65,43 @@ input_data = pd.DataFrame({
 })
 
 if st.button("🔍 Prediksi Churn"):
-    prediction = model.predict(input_data)
-    result = "CHURN" if prediction[0] == "Yes" else "TIDAK CHURN"
+    proba = model.predict_proba(input_data)
+    churn_prob = proba[0][1] * 100  # Probabilitas churn (%)
 
-    if result == "CHURN":
-        st.error(f"Hasil Prediksi: {result}")
+    # Threshold klasifikasi
+    if churn_prob >= 50:
+        prediction = "CHURN"
+        risiko = "RISIKO TINGGI"
     else:
-        st.success(f"Hasil Prediksi: {result}")
+        prediction = "TIDAK CHURN"
+        risiko = "RISIKO RENDAH"
+
+    st.markdown("---")
+    st.subheader("📊 Hasil & Ringkasan")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        label="📈 Probabilitas Churn",
+        value=f"{churn_prob:.2f}%"
+    )
+
+    col2.metric(
+        label="⚠️ Tingkat Risiko",
+        value=risiko
+    )
+
+    col3.metric(
+        label="🔮 Prediksi",
+        value=prediction
+    )
+
+    st.progress(churn_prob / 100)
+
+    if prediction == "CHURN":
+        st.error("❌ Pelanggan diprediksi **CHURN**")
+    else:
+        st.success("✅ Pelanggan diprediksi **TIDAK CHURN**")
+
+    st.caption("📌 Catatan: Pelanggan dikategorikan churn jika probabilitas ≥ 50%.")
+
